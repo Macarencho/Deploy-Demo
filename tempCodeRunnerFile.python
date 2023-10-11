@@ -1,0 +1,93 @@
+import random
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Создадим упрощенный датасет
+data = {
+    'feature1': np.random.rand(1000),
+    'feature2': np.random.rand(1000),
+    'click': np.random.randint(0, 2, 1000),
+    'conversion': np.random.randint(0, 2, 1000)
+}
+
+df = pd.DataFrame(data)
+
+# Определение пространства параметров (весов)
+parameter_space = {
+    'feature1_weight': [0.0, 1.0, 2.0, 3.0, 4.0],
+    'feature2_weight': [0.0, 1.0, 2.0, 3.0, 4.0]
+}
+
+# Определение функции оценки (фитнес-функции)
+def fitness_function(parameters):
+    # Извлекаем параметры
+    feature1_weight = parameters['feature1_weight']
+    feature2_weight = parameters['feature2_weight']
+    
+    # Создаем матрицу признаков и вектор меток
+    X = df[['feature1', 'feature2']]
+    y = df['click']
+    
+    # Применяем веса к признакам
+    X['feature1_weighted'] = X['feature1'] * feature1_weight
+    X['feature2_weighted'] = X['feature2'] * feature2_weight
+    
+    # Разделение датасета на обучающий и тестовый наборы
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Создаем и обучаем модель
+    model = LogisticRegression()
+    model.fit(X_train[['feature1_weighted', 'feature2_weighted']], y_train)
+    
+    # Прогноз на тестовом наборе
+    y_pred = model.predict(X_test[['feature1_weighted', 'feature2_weighted']])
+    
+    # Оценка производительности модели
+    performance_score = accuracy_score(y_test, y_pred)
+    
+    return performance_score
+
+# Начальная популяция
+population_size = 100
+population = [{'feature1_weight': random.choice(parameter_space['feature1_weight']),
+               'feature2_weight': random.choice(parameter_space['feature2_weight'])}
+              for _ in range(population_size)]
+
+# Основной цикл эволюционного алгоритма
+num_generations = 50
+mutation_rate = 0.1
+
+for generation in range(num_generations):
+    # Оценка каждого индивида в популяции
+    fitness_scores = [fitness_function(individual) for individual in population]
+
+    # Выбор лучших индивидов
+    num_parents = int(population_size * 0.2)
+    parents = [population[i] for i in np.argsort(fitness_scores)[-num_parents:]]
+
+    # Создание нового поколения
+    children = []
+    while len(children) < population_size - num_parents:
+        parent1, parent2 = random.choice(parents), random.choice(parents)
+        child = {
+            'feature1_weight': random.choice([parent1['feature1_weight'], parent2['feature1_weight']]),
+            'feature2_weight': random.choice([parent1['feature2_weight'], parent2['feature2_weight']])
+        }
+        if random.random() < mutation_rate:
+            child['feature1_weight'] = random.choice(parameter_space['feature1_weight'])
+            child['feature2_weight'] = random.choice(parameter_space['feature2_weight'])
+        children.append(child)
+
+    # Объединение родителей и потомков для следующего поколения
+    population = parents + children
+
+# Найденные оптимальные параметры
+best_parameters = population[np.argmax(fitness_scores)]
+
+# Применение оптимальных параметров (весов) к модели и оценка конверсии
+best_feature1_weight = best_parameters['feature1_weight']
+best_feature2_weight = best_parameters['feature2_weight']
+X['feature1_weighted'] = X['feature1'] * best_feature1_weight
+X['feature2_weighted'] = X['feature2'] * best_feature2_weight
