@@ -1,5 +1,10 @@
 {
   "dependencies": {
     "mongoose-slug-generator": "^1.0.4"
+  },
+  "scripts": {
+    "start": "npm run backend && npm run frontend",
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm start"
   }
 }
