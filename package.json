@@ -3,9 +3,9 @@
     "mongoose-slug-generator": "^1.0.4"
   },
   "scripts": {
-    "start": "npm run backend && npm run frontend",
-    "backend": "cd backend && node server.js",
-    "frontend": "cd frontend && npm start"
+    "build": "cd backend && npm install  && cd ../frontend && npm install && npm run build",
+    "start": "node backend/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
     "concurrently": "^8.2.1"
