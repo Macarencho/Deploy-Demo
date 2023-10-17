@@ -8,16 +8,21 @@ import userRouter from './routes/userRoutes.js';
 import orderRouter from './routes/orderRoutes.js';
 import uploadRouter from './routes/uploadRoutes.js';
 import categoryRouter from './routes/categoryRouter.js';
-dotenv.config();
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('connected to db');
-  })
-  .catch((err) => {
-    console.log(err.message);
-  });
+dotenv.config({ path: './backend/.env' });
+
+if (process.env.MONGODB_URI) {
+  mongoose
+    .connect(process.env.MONGODB_URI)
+    .then(() => {
+      console.log('connected to db');
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+} else {
+  console.error('MONGODB_URI is not defined in the environment.');
+}
 
 const app = express();
 
