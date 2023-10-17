@@ -3,8 +3,8 @@
     "mongoose-slug-generator": "^1.0.4"
   },
   "scripts": {
-    "start": "npm-run-all -p backend frontend",
-    "backend": "cd backend && node server.js",
+    "start": "start cmd /k \"npm run backend\" && start cmd /k \"npm run frontend\"",
+    "backend": "cd backend && npm start",
     "frontend": "cd frontend && npm start"
   },
   "devDependencies": {
